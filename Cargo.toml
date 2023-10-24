@@ -11,4 +11,7 @@ name = "turkey"
 crate-type = ["cdylib"]
 
 [dependencies]
+bson = "2.7.0"
 pyo3 = { version = "0.20.0", features = ["extension-module"] }
+retable = "0.2.1"
+serde_bson = "0.0.1"
