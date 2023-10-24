@@ -33,7 +33,7 @@ impl TurkeyMap{
     }
 
     /// 根据实体ID、属性名、属性值Bson插入
-    fn insert(&mut self, ent_id: u32, prop_name: String, prop: BsonBytes) -> PyResult<()>{
+    fn insert(&mut self, ent_id: u32, prop_name: String, prop: PropBytes) -> PyResult<()>{
         // 尝试转换属性值为Bson
         let prop = bson::from_slice::<Bson>(&prop);
         if prop.is_err(){
@@ -51,25 +51,24 @@ impl TurkeyMap{
     }
 
     /// 根据实体ID获取属性值
-    pub fn get_by_id(&self, ent_id: u32) -> Vec<ReturnBsonBytes>{
+    pub fn get_by_id(&self, ent_id: u32) -> Vec<ReturnPropBytes>{
         self._db.get_props(ent_id)
         .into_iter()
         .map(|atom|bson::to_vec(atom).unwrap())
         .map(|b|Cow::Owned(b))
-        .collect::<Vec<ReturnBsonBytes>>()
-
+        .collect::<Vec<ReturnPropBytes>>()
     }
     /// 根据属性名获取属性值
-    pub fn get_by_prop(&self, prop_name: String) -> Vec<ReturnBsonBytes>{
+    pub fn get_by_prop(&self, prop_name: String) -> Vec<ReturnPropBytes>{
         self._db.get_entities(prop_name)
         .into_iter()
         .map(|atom|bson::to_vec(atom).unwrap())
         .map(|b|Cow::Owned(b))
-        .collect::<Vec<ReturnBsonBytes>>()
+        .collect::<Vec<ReturnPropBytes>>()
     }
 
     /// 根据实体ID和属性名查找唯一值
-    pub fn get(&self, ent_id: u32, prop_name: String) -> Option<ReturnBsonBytes>{
+    pub fn get(&self, ent_id: u32, prop_name: String) -> Option<ReturnPropBytes>{
         if let Some(atom) = self._db.get(ent_id, prop_name){
             Some(Cow::Owned(bson::to_vec(atom).unwrap()))
         } else {
@@ -78,7 +77,7 @@ impl TurkeyMap{
     }
 
     /// 根据实体ID和属性名更新属性值
-    pub fn update(&mut self, ent_id: u32, prop_name: String, prop: BsonBytes) -> PyResult<()>{
+    pub fn update(&mut self, ent_id: u32, prop_name: String, prop: PropBytes) -> PyResult<()>{
         if let Ok(prop) = bson::from_slice(&prop){
             if let Some(_) = self._db.update(ent_id, prop_name, prop){
                 Ok(())
@@ -92,5 +91,5 @@ impl TurkeyMap{
 }
 
 /// Bson字符串
-type BsonBytes = Vec<u8>;
-type ReturnBsonBytes = Cow<'static, [u8]>;
+type PropBytes = Vec<u8>;
+type ReturnPropBytes = Cow<'static, [u8]>;
